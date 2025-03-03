@@ -1,0 +1,8 @@
+services:
+  bootstrap:
+    image: ghcr.io/holochain/kitsune2_bootstrap_srv:sha256-77bf0e843940fd7fb13341c9c1d2bafdc631ca28634b774809b670a6820961a9
+    ports:
+      - "443:443"
+    network_mode: host
+    volumes:
+      - /etc/bootstrap_srv:/etc/bootstrap_srv

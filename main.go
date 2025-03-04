@@ -24,12 +24,10 @@ func main() {
 			sshFingerprints = append(sshFingerprints, key.Fingerprint)
 		}
 
-		targetRegion := digitalocean.RegionFRA1
-
 		_, err = digitalocean.NewDroplet(ctx, "kitsune2-bootstrap-srv", &digitalocean.DropletArgs{
 			Image:    pulumi.String("ubuntu-24-04-x64"),
 			Name:     pulumi.String("kitsune2-bootstrap-srv"),
-			Region:   pulumi.String(targetRegion),
+			Region:   pulumi.String(digitalocean.RegionFRA1),
 			Size:     pulumi.String(digitalocean.DropletSlugDropletS2VCPU2GB),
 			Ipv6:     pulumi.Bool(true),
 			Tags:     pulumi.StringArray{pulumi.String("network-services")},

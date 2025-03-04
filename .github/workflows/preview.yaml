@@ -35,7 +35,7 @@ jobs:
       - uses: pulumi/actions@v6
         with:
           command: preview
-          stack-name: holochain/nomad-server
+          stack-name: holochain/network-services
           comment-on-pr: true
           diff: true
           github-token: ${{ secrets.HRA2_GITHUB_TOKEN }}

@@ -20,6 +20,6 @@ jobs:
       - uses: pulumi/actions@v6
         with:
           command: up
-          stack-name: holochain/nomad-server
+          stack-name: holochain/network-services
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.HRA2_PULUMI_ACCESS_TOKEN }}

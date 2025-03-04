@@ -68,7 +68,7 @@ Certificates are required to run the bootstrap/sbd service. Generating them with
 an interactive process. You need to run the following command and follow the instructions:
 
 ```sh
-sudo certbot certonly --standalone -d bootstrap2.holochain.org
+sudo certbot certonly --standalone -d dev-test-bootstrap2.holochain.org
 ```
 
 This sets up auto-renewal of certificates, so there's no need to manually configure a cron job. You can check that this 
@@ -101,17 +101,15 @@ To update the container deployment, edit the `docker-compose.yaml` locally. Any 
 pull request. Once that's done, you need to run the following command locally:
 
 ```sh
-scp docker-compose.yaml root@bootstrap2.holochain.org:/opt/bootstrap_srv/docker-compose.yaml
+scp docker-compose.yaml root@dev-test-bootstrap2.holochain.org:/opt/bootstrap_srv/docker-compose.yaml
 ```
 
 Then, you need to SSH into the server and restart the service:
 
 ```sh
-ssh root@bootstrap2.holochain.org
+ssh root@dev-test-bootstrap2.holochain.org
 cd /opt/bootstrap_srv/
 podman compose up -d
 ```
 
 Note that this will restart the service, which will close any open connections!
-
-

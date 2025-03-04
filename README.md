@@ -50,3 +50,60 @@ This value is encrypted by Pulumi and stored in [Pulumi.network-services.yaml].
 
 Remember to open a PR with the new token and allow the CI/Actions to apply the
 changes to Pulumi.
+
+## Setting up on the first deploy
+
+The first step is to set up DNS. You need to map the intended hostname for the server to the IPv4 and IPv6 addresses of
+the server.
+
+Certificates are required to run the bootstrap/sbd service. Generating them with [certbot](https://certbot.eff.org/) is
+an interactive process. You need to run the following command and follow the instructions:
+
+```sh
+sudo certbot certonly --standalone -d bootstrap2.holochain.org
+```
+
+This sets up auto-renewal of certificates, so there's no need to manually configure a cron job. You can check that this 
+is working by running:
+
+```sh
+sudo certbot renew --dry-run
+```
+
+Now you can start the bootstrap/sbd service:
+
+```sh
+cd /opt/bootstrap_srv/
+podman compose up -d
+```
+
+This will pull the `holochain/kitsune2_bootstrap_srv` container and start it as a daemon.
+
+Check that the service managed to start by running:
+
+```sh
+podman compose logs bootstrap
+```
+
+You should see a log line like `#kitsune2_bootstrap_srv#running#`.
+
+## Updating the container deployment
+
+To update the container deployment, edit the `docker-compose.yaml` locally. Any changes to this file should go up for a
+pull request. Once that's done, you need to run the following command locally:
+
+```sh
+scp docker-compose.yaml root@bootstrap2.holochain.org:/opt/bootstrap_srv/docker-compose.yaml
+```
+
+Then, you need to SSH into the server and restart the service:
+
+```sh
+ssh root@bootstrap2.holochain.org
+cd /opt/bootstrap_srv/
+podman compose up -d
+```
+
+Note that this will restart the service, which will close any open connections!
+
+

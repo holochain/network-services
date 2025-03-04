@@ -3,4 +3,35 @@
 packages:
   - podman
   - podman-compose
-  - certbot
+
+snap:
+  commands:
+    0: [install, core]
+    1: [refresh, core]
+    2: [install, --classic, certbot]
+
+write_files:
+  #
+  # This should NOT be updated unless you are intending to redeploy the bootstrap server
+  #
+  - content: |
+      services:
+        bootstrap:
+          image: ghcr.io/holochain/kitsune2_bootstrap_srv@sha256:02e2d138496c000ebb17d4ace84507870b4f5967ed270d814a8a4e312e8c1c83
+          command:
+            - kitsune2-bootstrap-srv
+            - --production
+            - --listen
+            - "[::]:443"
+            - --tls-cert
+            - /etc/letsencrypt/live/bootstrap2.holochain.org/cert.pem
+            - --tls-key
+            - /etc/letsencrypt/live/bootstrap2.holochain.org/privkey.pem
+          environment:
+            - RUST_LOG=info
+          network_mode: host
+          volumes:
+            - /etc/letsencrypt/:/etc/letsencrypt/
+          restart: unless-stopped
+    path: /opt/bootstrap_srv/docker-compose.yaml
+    permissions: "0644"

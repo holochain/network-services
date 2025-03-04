@@ -7,7 +7,7 @@ services:
       - --listen
       - "[::]:443"
       - --tls-cert
-      - /etc/letsencrypt/live/bootstrap2.holochain.org/cert.pem
+      - /etc/letsencrypt/live/bootstrap2.holochain.org/fullchain.pem
       - --tls-key
       - /etc/letsencrypt/live/bootstrap2.holochain.org/privkey.pem
     environment:

@@ -51,7 +51,15 @@ This value is encrypted by Pulumi and stored in [Pulumi.network-services.yaml].
 Remember to open a PR with the new token and allow the CI/Actions to apply the
 changes to Pulumi.
 
-## Setting up on the first deploy
+## Bootstrap server
+
+The bootstrap server is a combination of [bootstrap](https://crates.io/crates/kitsune2_bootstrap_srv) and 
+[sbd](https://crates.io/crates/sbd-server) services. Used for peer discovery and initiating peer connections 
+respectively.
+
+The services are deployed as a container which can be found in the [Kitsune2 project](https://github.com/holochain/kitsune2/pkgs/container/kitsune2_bootstrap_srv).
+
+### Setting up on the first deploy
 
 The first step is to set up DNS. You need to map the intended hostname for the server to the IPv4 and IPv6 addresses of
 the server.
@@ -87,7 +95,7 @@ podman compose logs bootstrap
 
 You should see a log line like `#kitsune2_bootstrap_srv#running#`.
 
-## Updating the container deployment
+### Updating the container deployment
 
 To update the container deployment, edit the `docker-compose.yaml` locally. Any changes to this file should go up for a
 pull request. Once that's done, you need to run the following command locally:

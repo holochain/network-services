@@ -46,7 +46,7 @@ jobs:
     needs:
       - lint
       - preview
-    runs-on: Ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Decide whether the required jobs succeeded or failed
         uses: re-actors/alls-green@release/v1

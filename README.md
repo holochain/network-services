@@ -54,7 +54,7 @@ changes to Pulumi.
 ## Bootstrap server
 
 The bootstrap server is a combination of [bootstrap](https://crates.io/crates/kitsune2_bootstrap_srv) and 
-[sbd](https://crates.io/crates/sbd-server) services. Used for peer discovery and initiating peer connections 
+[sbd (Holochain signal server)](https://crates.io/crates/sbd-server) services. Used for peer discovery and initiating peer connections 
 respectively.
 
 The services are deployed as a container which can be found in the [Kitsune2 project](https://github.com/holochain/kitsune2/pkgs/container/kitsune2_bootstrap_srv).

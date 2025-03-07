@@ -1,0 +1,18 @@
+services:
+  bootstrap:
+    image: ghcr.io/holochain/kitsune2_bootstrap_srv@sha256:02e2d138496c000ebb17d4ace84507870b4f5967ed270d814a8a4e312e8c1c83
+    command:
+      - kitsune2-bootstrap-srv
+      - --production
+      - --listen
+      - "[::]:443"
+      - --tls-cert
+      - /etc/letsencrypt/live/dev-test-bootstrap2.holochain.org/fullchain.pem
+      - --tls-key
+      - /etc/letsencrypt/live/dev-test-bootstrap2.holochain.org/privkey.pem
+    environment:
+      - RUST_LOG=info
+    network_mode: host
+    volumes:
+      - /etc/letsencrypt/:/etc/letsencrypt/
+    restart: unless-stopped

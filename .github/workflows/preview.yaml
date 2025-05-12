@@ -12,9 +12,17 @@ jobs:
         run: sudo apt-get update
       - name: Install cloud-init
         run: sudo apt-get install -y cloud-init
-      - name: Lint cloud-init file
+      - name: Lint dev-test cloud-init file
         run: |
-          if ! cloud-init schema -c cloud-init.yaml 2> >(tee stderr.log) >> $GITHUB_STEP_SUMMARY
+          if ! cloud-init schema -c dev-test/cloud-init.yaml 2> >(tee stderr.log) >> $GITHUB_STEP_SUMMARY
+          then
+            # Print errors as such in GitHub logs.
+            cat stderr.log | grep "in.*line.*column" -B1 -A1 --no-group-separator | sed -z 's/\([^\n]*\)\n\s*in "\([^"]*\)", line \([[:digit:]]\+\), column \([[:digit:]]\+\):\s*/::error file=cloud-init.yaml,title=\1 in \2,line=\3,col=\4::/g'
+            exit 1
+          fi
+      - name: Lint dev-test-auth cloud-init file
+        run: |
+          if ! cloud-init schema -c dev-test-auth/cloud-init.yaml 2> >(tee stderr.log) >> $GITHUB_STEP_SUMMARY
           then
             # Print errors as such in GitHub logs.
             cat stderr.log | grep "in.*line.*column" -B1 -A1 --no-group-separator | sed -z 's/\([^\n]*\)\n\s*in "\([^"]*\)", line \([[:digit:]]\+\), column \([[:digit:]]\+\):\s*/::error file=cloud-init.yaml,title=\1 in \2,line=\3,col=\4::/g'

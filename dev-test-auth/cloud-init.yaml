@@ -24,9 +24,9 @@ write_files:
             - --listen
             - "[::]:443"
             - --tls-cert
-            - /etc/letsencrypt/live/dev-test-bootstrap2.holochain.org/fullchain.pem
+            - /etc/letsencrypt/live/dev-test-bootstrap2-auth.holochain.org/fullchain.pem
             - --tls-key
-            - /etc/letsencrypt/live/dev-test-bootstrap2.holochain.org/privkey.pem
+            - /etc/letsencrypt/live/dev-test-bootstrap2-auth.holochain.org/privkey.pem
             - --authentication-hook-server
             - http://auth:80
           depends_on:

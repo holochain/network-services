@@ -17,7 +17,7 @@ write_files:
   - content: |
       services:
         bootstrap:
-          image: ghcr.io/holochain/kitsune2_bootstrap_srv@sha256:fbea9a7a44e574059edd7cca38689be8764bb85c7217e7ee57b3ca9628f74d4c
+          image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.2.3
           command:
             - kitsune2-bootstrap-srv
             - --production
@@ -27,11 +27,22 @@ write_files:
             - /etc/letsencrypt/live/dev-test-bootstrap2.holochain.org/fullchain.pem
             - --tls-key
             - /etc/letsencrypt/live/dev-test-bootstrap2.holochain.org/privkey.pem
+            - --authentication-hook-server
+            - http://auth:80
+          depends_on:
+            - auth
           environment:
             - RUST_LOG=info
           network_mode: host
           volumes:
             - /etc/letsencrypt/:/etc/letsencrypt/
+          restart: unless-stopped
+        auth:
+          image: ghcr.io/holochain/kitsune2_bootstrap_srv_auth_test:pr-212
+          environment:
+            - RUST_LOG=info
+          ports:
+            - "80:80"
           restart: unless-stopped
     path: /opt/bootstrap_srv/docker-compose.yaml
     permissions: "0644"

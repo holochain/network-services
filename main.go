@@ -51,7 +51,7 @@ func configureDevTestBootstrapSrv(ctx *pulumi.Context, devTestCloudInitYaml stri
 		Tags:     pulumi.StringArray{pulumi.String("network-services")},
 		SshKeys:  pulumi.ToStringArray(sshFingerprints),
 		UserData: pulumi.String(devTestCloudInitYaml),
-	})
+	}, pulumi.IgnoreChanges([]string{"SshKeys"}))
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func configureDevTestAuthBootstrapSrv(ctx *pulumi.Context, devTestAuthCloudInitY
 		Tags:     pulumi.StringArray{pulumi.String("network-services")},
 		SshKeys:  pulumi.ToStringArray(sshFingerprints),
 		UserData: pulumi.String(devTestAuthCloudInitYaml),
-	})
+	}, pulumi.IgnoreChanges([]string{"SshKeys"}))
 	if err != nil {
 		return err
 	}

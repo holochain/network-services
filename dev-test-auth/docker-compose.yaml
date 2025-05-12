@@ -1,6 +1,6 @@
 services:
   bootstrap:
-    image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.0.1-alpha9
+    image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.2.3
     command:
       - kitsune2-bootstrap-srv
       - --production
@@ -10,9 +10,20 @@ services:
       - /etc/letsencrypt/live/dev-test-bootstrap2.holochain.org/fullchain.pem
       - --tls-key
       - /etc/letsencrypt/live/dev-test-bootstrap2.holochain.org/privkey.pem
+      - --authentication-hook-server
+      - http://auth:80
+    depends_on:
+      - auth
     environment:
       - RUST_LOG=info
     network_mode: host
     volumes:
       - /etc/letsencrypt/:/etc/letsencrypt/
+    restart: unless-stopped
+  auth:
+    image: ghcr.io/holochain/kitsune2_bootstrap_srv_auth_test:pr-212
+    environment:
+      - RUST_LOG=info
+    ports:
+      - "80:80"
     restart: unless-stopped

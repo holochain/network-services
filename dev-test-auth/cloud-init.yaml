@@ -17,7 +17,7 @@ write_files:
   - content: |
       services:
         bootstrap:
-          image: ghcr.io/holochain/kitsune2_bootstrap_srv@sha256:02e2d138496c000ebb17d4ace84507870b4f5967ed270d814a8a4e312e8c1c83
+          image: ghcr.io/holochain/kitsune2_bootstrap_srv@sha256:fbea9a7a44e574059edd7cca38689be8764bb85c7217e7ee57b3ca9628f74d4c
           command:
             - kitsune2-bootstrap-srv
             - --production

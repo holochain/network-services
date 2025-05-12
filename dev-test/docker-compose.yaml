@@ -1,6 +1,6 @@
 services:
   bootstrap:
-    image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.2.3
+    image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.2.4
     command:
       - kitsune2-bootstrap-srv
       - --production

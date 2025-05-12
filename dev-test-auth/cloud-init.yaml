@@ -17,7 +17,7 @@ write_files:
   - content: |
       services:
         bootstrap:
-          image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.2.3
+          image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.2.4
           command:
             - kitsune2-bootstrap-srv
             - --production
@@ -38,7 +38,7 @@ write_files:
             - /etc/letsencrypt/:/etc/letsencrypt/
           restart: unless-stopped
         auth:
-          image: ghcr.io/holochain/kitsune2_bootstrap_srv_auth_test:pr-212
+          image: ghcr.io/holochain/kitsune2_test_auth_hook_server:v0.2.4
           environment:
             - RUST_LOG=info
           ports:

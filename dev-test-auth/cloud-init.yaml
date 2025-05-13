@@ -28,12 +28,11 @@ write_files:
             - --tls-key
             - /etc/letsencrypt/live/dev-test-bootstrap2-auth.holochain.org/privkey.pem
             - --authentication-hook-server
-            - http://auth:80
-          depends_on:
-            - auth
+            - http://127.0.0.1:80/authenticate
           environment:
             - RUST_LOG=info
-          network_mode: host
+          ports:
+            - "443:443"
           volumes:
             - /etc/letsencrypt/:/etc/letsencrypt/
           restart: unless-stopped
@@ -41,8 +40,7 @@ write_files:
           image: ghcr.io/holochain/kitsune2_test_auth_hook_server:v0.2.4
           environment:
             - RUST_LOG=info
-          ports:
-            - "80:80"
+          network_mode: service:bootstrap
           restart: unless-stopped
     path: /opt/bootstrap_srv/docker-compose.yaml
     permissions: "0644"

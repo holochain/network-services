@@ -28,7 +28,7 @@ write_files:
             - --tls-key
             - /etc/letsencrypt/live/dev-test-bootstrap2-auth.holochain.org/privkey.pem
             - --authentication-hook-server
-            - http:auth:80/authenticate
+            - http://auth:80/authenticate
           environment:
             - RUST_LOG=info
           ports:

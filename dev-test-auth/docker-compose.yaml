@@ -1,6 +1,6 @@
 services:
   bootstrap:
-    image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.2.4
+    image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.2.5
     command:
       - kitsune2-bootstrap-srv
       - --production
@@ -20,7 +20,7 @@ services:
       - /etc/letsencrypt/:/etc/letsencrypt/
     restart: unless-stopped
   auth:
-    image: ghcr.io/holochain/kitsune2_test_auth_hook_server:v0.2.4
+    image: ghcr.io/holochain/kitsune2_test_auth_hook_server:v0.2.5
     environment:
       - RUST_LOG=info
     network_mode: service:bootstrap

@@ -11,7 +11,7 @@ services:
       - --tls-key
       - /etc/letsencrypt/live/dev-test-bootstrap2-auth.holochain.org/privkey.pem
       - --authentication-hook-server
-      - http://127.0.0.1:80/authenticate
+      - http:auth:80/authenticate
     environment:
       - RUST_LOG=info
     ports:
@@ -21,7 +21,11 @@ services:
     restart: unless-stopped
   auth:
     image: ghcr.io/holochain/kitsune2_test_auth_hook_server:v0.2.5
+    command:
+      - test-auth-hook-server
+      - "[::]:80"
     environment:
       - RUST_LOG=info
-    network_mode: service:bootstrap
+    ports:
+      - "80:80"
     restart: unless-stopped

@@ -101,13 +101,73 @@ To update the container deployment, edit the `docker-compose.yaml` locally. Any 
 pull request. Once that's done, you need to run the following command locally:
 
 ```sh
-scp docker-compose.yaml root@dev-test-bootstrap2.holochain.org:/opt/bootstrap_srv/docker-compose.yaml
+scp dev-test/docker-compose.yaml root@dev-test-bootstrap2.holochain.org:/opt/bootstrap_srv/docker-compose.yaml
 ```
 
 Then, you need to SSH into the server and restart the service:
 
 ```sh
 ssh root@dev-test-bootstrap2.holochain.org
+cd /opt/bootstrap_srv/
+podman compose up -d
+```
+
+Note that this will restart the service, which will close any open connections!
+
+## Bootstrap server with authentication
+
+The same as the bootstrap server, but with authentication. This is used to protect the bootstrap and sbd servers from
+abuse and is intended to become the default in the future.
+
+### Setting up on the first deploy
+
+The first step is to set up DNS. You need to map the intended hostname for the server to the IPv4 and IPv6 addresses of
+the server.
+
+Certificates are required to run the bootstrap/sbd service. Generating them with [certbot](https://certbot.eff.org/) is
+an interactive process. You need to run the following command and follow the instructions:
+
+```sh
+sudo certbot certonly --standalone -d dev-test-bootstrap2-auth.holochain.org
+```
+
+This sets up auto-renewal of certificates, so there's no need to manually configure a cron job. You can check that this
+is working by running:
+
+```sh
+sudo certbot renew --dry-run
+```
+
+Now you can start the bootstrap/sbd and authentication services:
+
+```sh
+cd /opt/bootstrap_srv/
+podman compose up -d
+```
+
+This will pull the `holochain/kitsune2_bootstrap_srv` and `holochain/kitsune2_test_auth_hook_server` containers and start them as a daemon.
+
+Check that the service managed to start by running:
+
+```sh
+podman compose logs bootstrap
+```
+
+You should see a log line like `#kitsune2_bootstrap_srv#running#`.
+
+### Updating the container deployment
+
+To update the container deployment, edit the `docker-compose.yaml` locally. Any changes to this file should go up for a
+pull request. Once that's done, you need to run the following command locally:
+
+```sh
+scp dev-test-auth/docker-compose.yaml root@dev-test-bootstrap2-auth.holochain.org:/opt/bootstrap_srv/docker-compose.yaml
+```
+
+Then, you need to SSH into the server and restart the service:
+
+```sh
+ssh root@dev-test-bootstrap2-auth.holochain.org
 cd /opt/bootstrap_srv/
 podman compose up -d
 ```

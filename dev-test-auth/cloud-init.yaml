@@ -1,0 +1,46 @@
+#cloud-config
+
+packages:
+  - podman
+  - podman-compose
+
+snap:
+  commands:
+    0: [install, core]
+    1: [refresh, core]
+    2: [install, --classic, certbot]
+
+write_files:
+  #
+  # This should NOT be updated unless you are intending to redeploy the bootstrap server
+  #
+  - content: |
+      services:
+        bootstrap:
+          image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.2.4
+          command:
+            - kitsune2-bootstrap-srv
+            - --production
+            - --listen
+            - "[::]:443"
+            - --tls-cert
+            - /etc/letsencrypt/live/dev-test-bootstrap2-auth.holochain.org/fullchain.pem
+            - --tls-key
+            - /etc/letsencrypt/live/dev-test-bootstrap2-auth.holochain.org/privkey.pem
+            - --authentication-hook-server
+            - http://127.0.0.1:80/authenticate
+          environment:
+            - RUST_LOG=info
+          ports:
+            - "443:443"
+          volumes:
+            - /etc/letsencrypt/:/etc/letsencrypt/
+          restart: unless-stopped
+        auth:
+          image: ghcr.io/holochain/kitsune2_test_auth_hook_server:v0.2.4
+          environment:
+            - RUST_LOG=info
+          network_mode: service:bootstrap
+          restart: unless-stopped
+    path: /opt/bootstrap_srv/docker-compose.yaml
+    permissions: "0644"

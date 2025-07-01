@@ -1,6 +1,6 @@
 services:
   bootstrap:
-    image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.2.6
+    image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.2.11
     command:
       - kitsune2-bootstrap-srv
       - --production
@@ -10,6 +10,10 @@ services:
       - /etc/letsencrypt/live/dev-test-bootstrap2-auth.holochain.org/fullchain.pem
       - --tls-key
       - /etc/letsencrypt/live/dev-test-bootstrap2-auth.holochain.org/privkey.pem
+      - --sbd-limit-ip-kbps
+      - "100000"
+      - --sbd-limit-ip-byte-burst
+      - "26000000"
       - --authentication-hook-server
       - http://auth:80/authenticate
     environment:
@@ -20,7 +24,7 @@ services:
       - /etc/letsencrypt/:/etc/letsencrypt/
     restart: unless-stopped
   auth:
-    image: ghcr.io/holochain/kitsune2_test_auth_hook_server:v0.2.6
+    image: ghcr.io/holochain/kitsune2_test_auth_hook_server:v0.2.11
     command:
       - test-auth-hook-server
       - "[::]:80"

@@ -6,7 +6,7 @@ A Pulumi definition for deploying Holochain network services to be used for deve
 ### Installation
 
 First, make sure that you are in the Nix development shell or that you have
-installed `pulumi`, `pulumi-language-go`, and `go`.
+installed `pulumi`, `pulumi-go`, and `go`.
 
 Then, log into Pulumi with:
 ```sh

@@ -1,0 +1,18 @@
+services:
+  bootstrap-iroh-relay:
+    image: ghcr.io/holochain/kitsune2_bootstrap_srv_iroh_relay:main
+    command:
+      - kitsune2-bootstrap-srv
+      - --production
+      - --listen
+      - "[::]:443"
+      - --tls-cert
+      - /etc/letsencrypt/live/dev-test-bootstrap2-iroh-relay.holochain.org/fullchain.pem
+      - --tls-key
+      - /etc/letsencrypt/live/dev-test-bootstrap2-iroh-relay.holochain.org/privkey.pem
+    environment:
+      - RUST_LOG=info
+    network_mode: host
+    volumes:
+      - /etc/letsencrypt/:/etc/letsencrypt/
+    restart: unless-stopped

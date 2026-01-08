@@ -61,7 +61,14 @@ The services are deployed as a container which can be found in the [Kitsune2 pro
 
 ### Setting up on the first deploy
 
-The first step is to set up DNS. You need to map the intended hostname for the server to the IPv4 and IPv6 addresses of
+The first step is to create a deployment configuration. It includes the `docker-compose.yaml` that defines the services in the docker container,
+and the `cloud-init.yaml` which triggers the deployment of the defined container. One of the existing folders `dev-test` or the like can be
+copied and the file contents adapted to the configuration of the new deployment.
+
+The new deployment needs to be included in `./main.go` to be executed by pulumi. Again, existing code can be copied and modified as needed.
+Create a PR with the changes so far and merge it into `main`. The new deployment will be performed automatically.
+
+The next step is to set up DNS. You need to map the intended hostname for the server to the IPv4 and IPv6 addresses of
 the server.
 
 Certificates are required to run the bootstrap/sbd service. Generating them with [certbot](https://certbot.eff.org/) is

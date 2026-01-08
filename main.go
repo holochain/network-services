@@ -13,6 +13,11 @@ func main() {
 		log.Fatalf("failed to load cloud-init.yaml: %s", err)
 	}
 
+	devTestIrohRelayCloudInitYaml, err := os.ReadFile("dev-test-iroh-relay/cloud-init.yaml")
+	if err != nil {
+		log.Fatalf("failed to load cloud-init.yaml: %s", err)
+	}
+
 	devTestAuthCloudInitYaml, err := os.ReadFile("dev-test-auth/cloud-init.yaml")
 	if err != nil {
 		log.Fatalf("failed to load cloud-init.yaml: %s", err)
@@ -20,6 +25,10 @@ func main() {
 
 	pulumi.Run(func(ctx *pulumi.Context) error {
 		if err := configureDevTestBootstrapSrv(ctx, string(devTestCloudInitYaml)); err != nil {
+			return err
+		}
+
+		if err := configureDevTestBootstrapIrohRelaySrv(ctx, string(devTestIrohRelayCloudInitYaml)); err != nil {
 			return err
 		}
 
@@ -51,6 +60,34 @@ func configureDevTestBootstrapSrv(ctx *pulumi.Context, devTestCloudInitYaml stri
 		Tags:     pulumi.StringArray{pulumi.String("network-services")},
 		SshKeys:  pulumi.ToStringArray(sshFingerprints),
 		UserData: pulumi.String(devTestCloudInitYaml),
+	}, pulumi.IgnoreChanges([]string{"sshKeys"}))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func configureDevTestBootstrapIrohRelaySrv(ctx *pulumi.Context, devTestIrohRelayCloudInitYaml string) error {
+	getSshKeysResult, err := digitalocean.GetSshKeys(ctx, &digitalocean.GetSshKeysArgs{}, nil)
+	if err != nil {
+		return err
+	}
+
+	var sshFingerprints []string
+	for _, key := range getSshKeysResult.SshKeys {
+		sshFingerprints = append(sshFingerprints, key.Fingerprint)
+	}
+
+	_, err = digitalocean.NewDroplet(ctx, "kitsune2-bootstrap-iroh-relay-srv", &digitalocean.DropletArgs{
+		Image:    pulumi.String("ubuntu-24-04-x64"),
+		Name:     pulumi.String("kitsune2-bootstrap-iroh-relay-srv"),
+		Region:   pulumi.String(digitalocean.RegionFRA1),
+		Size:     pulumi.String(digitalocean.DropletSlugDropletS2VCPU2GB),
+		Ipv6:     pulumi.Bool(true),
+		Tags:     pulumi.StringArray{pulumi.String("network-services")},
+		SshKeys:  pulumi.ToStringArray(sshFingerprints),
+		UserData: pulumi.String(devTestIrohRelayCloudInitYaml),
 	}, pulumi.IgnoreChanges([]string{"sshKeys"}))
 	if err != nil {
 		return err

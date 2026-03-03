@@ -1,0 +1,128 @@
+#cloud-config
+
+#
+# This file should NOT be modified unless you are intending to redeploy the droplet
+#
+
+packages:
+  - podman
+  - podman-compose
+
+write_files:
+  - content: |
+      services:
+        bootstrap:
+          image: ghcr.io/holochain/kitsune2_bootstrap_srv:v0.4.0-dev.4
+          command:
+            - kitsune2-bootstrap-srv
+            - --production
+            - --listen
+            - "[::]:5000"
+            - --allowed-origins
+            - http://127.0.0.1:1234
+            - --authentication-hook-server
+            - http://auth:3000/authenticate
+          environment:
+            - RUST_LOG=info
+          ports:
+            - "5000:5000"
+          restart: unless-stopped
+          depends_on:
+            - auth
+        auth:
+          image: ghcr.io/holochain/hc_auth_server:v0.1.0
+          command:
+            - hc-auth-server
+          env_file:
+            - "auth.env"
+          ports:
+            - "3000:3000"
+          restart: unless-stopped
+          depends_on:
+            - db
+        db:
+          image: docker.io/valkey/valkey:9-trixie
+          command:
+            - valkey-server
+            - --loglevel
+            - warning
+            - --save
+            - "60 1"
+          ports:
+            - "6379:6379"
+          volumes:
+            - db_data:/data
+          restart: unless-stopped
+        caddy:
+          image: docker.io/caddy:2-alpine
+          volumes:
+            - caddy_data:/data
+            - ./Caddyfile:/etc/caddy/Caddyfile
+          ports:
+            - "80:80"
+            - "443:443"
+          restart: unless-stopped
+          depends_on:
+            - bootstrap
+            - auth
+
+      volumes:
+        db_data:
+        caddy_data:
+    path: /opt/bootstrap_srv/docker-compose.yaml
+    permissions: "0644"
+
+  - content: |
+      hc-auth-iroh-unyt.holochain.org:443
+
+      bind 0.0.0.0
+      encode zstd gzip
+      @relay {
+        path /relay
+        path /ping
+      }
+
+      handle @relay {
+        reverse_proxy http://bootstrap:5000
+      }
+
+      handle {
+        reverse_proxy http://auth:3000
+      }
+    path: /opt/bootstrap_srv/Caddyfile
+    permissions: "0644"
+
+  - content: |
+      # GitHub OAuth Application Credentials
+      GITHUB_CLIENT_ID={{ .GithubClientId }}
+      GITHUB_CLIENT_SECRET={{ .GithubClientSecret }}
+
+      # Organization and Team for Access Control
+      GITHUB_ORG=unytco
+      GITHUB_TEAM=oauth-admins
+
+      # Web Server Configuration
+      HOST=0.0.0.0
+      PORT=3000
+
+      # Set to true to enforce HTTPS for redirects and secure cookies
+      PRODUCTION=true
+
+      # OAuth callback URI. Defaults to {scheme}://{HOST}:{PORT}/ops/oauth-callback
+      REDIRECT_URI=https://hc-auth-iroh-unyt.holochain.org/ops/oauth-callback
+
+      # Session Secret (should be a long random string in production)
+      SESSION_SECRET={{ .SessionSecret }}
+
+      # Application Limits
+      # Maximum number of pending authentication requests allowed in storage.
+      MAX_PENDING_REQUESTS=100
+
+      # API Access tokens
+      # Comma-separated list of tokens authorized to call protected API endpoints.
+      API_TOKENS={{ .ApiTokens }}
+
+      # Redis Configuration (Standalone)
+      REDIS_URL=redis://db:6379
+    path: /opt/bootstrap_srv/auth.env
+    permissions: "0600"

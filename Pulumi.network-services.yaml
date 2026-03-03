@@ -1,3 +1,11 @@
 config:
   digitalocean:token:
     secure: AAABANMEFCeTZE1FQEypdIzjuNw+LGB7jpg6vDTttGntV6366sJphuAoWTbvTR/PN1eCTwsEGHnxQxqRpOc/vnIjLEU257iehmJraSkjOCmvlhdix1K/4lI1M6AvabzKeo6NYGCggw==
+  hc-auth-iroh-unyt:api-tokens:
+    secure: AAABAP7pUifZVC5QI1A4tRkrINjVnFLH4QwKBVqK3S7EDoqEXvcxEqD0I7u2RXzMPcppT303ieFKzy1rjlnDADZCGrI=
+  hc-auth-iroh-unyt:github-client-id:
+    secure: AAABAPH1+emjqOYjv6iC9yil0epYgz8FbhqidJ+pzFq2iuT3QInirjrfI84btF0jnwladQ==
+  hc-auth-iroh-unyt:github-client-secret:
+    secure: AAABANh3F2nDgAfmPhJ5WfY6zWkRR42P8SvqvKk9K22urvqYiXJSgCjnDau1oUqzV42nTn3CGHiDlwza9YQ4XBEpPKJgxA81
+  hc-auth-iroh-unyt:session-secret:
+    secure: AAABADk48DM2ZdxAXP0bqKocsoRrVSiS9aXgDULVL5jsc+TT8up+zivzSyNb0XriQvnYIz+o1VfyyYwVh8YQFqxTDdn4hNJSyh7rW2sYovD6rN3y+GuWhnVBdRNNflhNcGERk5k1nvkM8jDA7yvfkPzzUZaWgL1I

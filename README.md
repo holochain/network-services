@@ -180,3 +180,30 @@ podman compose up -d
 ```
 
 Note that this will restart the service, which will close any open connections!
+
+## Iroh-flavored bootstrap service with authentication for Unyt
+
+Configured an OAuth application as directed by the [hc-auth-iroh-unyt README](https://github.com/holochain/hc-auth-server).
+
+Set the homepage URL to: https://github.com/holochain/hc-auth-server
+Set the callback URL to: https://hc-auth-iroh-unyt.holochain.org/ops/oauth-callback
+
+Then, set the following Pulumi configuration values with the credentials from the OAuth application:
+
+```shell
+pulumi config set --secret hc-auth-iroh-unyt:github-client-id <value>
+pulumi config set --secret hc-auth-iroh-unyt:github-client-secret <value>
+```
+
+Next, generate a session secret and set it as a secret:
+
+```shell
+dd if=/dev/random bs=66 count=1 | base64 -w0 | pulumi config set --secret hc-auth-iroh-unyt:session-secret
+```
+
+Finally, set an API token for the authentication server. This can be any random string, but it must be kept secret. Use
+the output api-token.txt to share the token with users who need it and then remove it:
+
+```shell
+uuidgen | tee api-token.txt | pulumi config set --secret hc-auth-iroh-unyt:api-tokens
+```

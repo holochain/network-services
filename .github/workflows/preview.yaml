@@ -8,7 +8,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Update apt index
         run: sudo apt-get update
       - name: Install cloud-init
@@ -21,9 +21,9 @@ jobs:
             cat stderr.log | grep "in.*line.*column" -B1 -A1 --no-group-separator | sed -z 's/\([^\n]*\)\n\s*in "\([^"]*\)", line \([[:digit:]]\+\), column \([[:digit:]]\+\):\s*/::error file=cloud-init.yaml,title=\1 in \2,line=\3,col=\4::/g'
             exit 1
           fi
-      - name: Lint dev-test-auth cloud-init file
+      - name: Lint hc-auth-iroh-unyt cloud-init file
         run: |
-          if ! cloud-init schema -c dev-test-auth/cloud-init.yaml 2> >(tee stderr.log) >> $GITHUB_STEP_SUMMARY
+          if ! cloud-init schema -c hc-auth-iroh-unyt/cloud-init.yaml.tmpl 2> >(tee stderr.log) >> $GITHUB_STEP_SUMMARY
           then
             # Print errors as such in GitHub logs.
             cat stderr.log | grep "in.*line.*column" -B1 -A1 --no-group-separator | sed -z 's/\([^\n]*\)\n\s*in "\([^"]*\)", line \([[:digit:]]\+\), column \([[:digit:]]\+\):\s*/::error file=cloud-init.yaml,title=\1 in \2,line=\3,col=\4::/g'
@@ -33,8 +33,8 @@ jobs:
   preview:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
           go-version-file: ./go.mod
       - name: Install dependencies

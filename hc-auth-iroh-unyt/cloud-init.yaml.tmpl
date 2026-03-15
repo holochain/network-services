@@ -21,7 +21,7 @@ write_files:
             - --allowed-origins
             - http://127.0.0.1:1234
             - --authentication-hook-server
-            - http://auth:3000/authenticate
+            - http://auth:3000
           environment:
             - RUST_LOG=info
           ports:
@@ -77,12 +77,13 @@ write_files:
 
       bind 0.0.0.0
       encode zstd gzip
-      @relay {
+      @bootstrap {
         path /relay /relay/*
         path /ping
+        path /authenticate
       }
 
-      handle @relay {
+      handle @bootstrap {
         reverse_proxy http://bootstrap:5000
       }
 

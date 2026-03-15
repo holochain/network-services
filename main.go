@@ -108,6 +108,6 @@ func configureHcAuthIrohUnyt(ctx *pulumi.Context, cloudInitTmpl *template.Templa
 		Tags:     pulumi.StringArray{pulumi.String("network-services")},
 		SshKeys:  pulumi.ToStringArray(sshFingerprints),
 		UserData: userData,
-	}, pulumi.IgnoreChanges([]string{"sshKeys"}))
+	}, pulumi.IgnoreChanges([]string{"sshKeys", "userData"}))
 	return err
 }

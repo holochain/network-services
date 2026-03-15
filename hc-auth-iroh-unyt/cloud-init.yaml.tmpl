@@ -30,7 +30,7 @@ write_files:
           depends_on:
             - auth
         auth:
-          image: ghcr.io/holochain/hc_auth_server:v0.1.0
+          image: ghcr.io/holochain/hc_auth_server:v0.1.2
           command:
             - hc-auth-server
           env_file:
@@ -78,7 +78,7 @@ write_files:
       bind 0.0.0.0
       encode zstd gzip
       @relay {
-        path /relay
+        path /relay /relay/*
         path /ping
       }
 

@@ -78,6 +78,7 @@ write_files:
       bind 0.0.0.0
       encode zstd gzip
       @bootstrap {
+        path /bootstrap /bootstrap/*
         path /relay /relay/*
         path /ping
         path /authenticate

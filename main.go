@@ -59,7 +59,7 @@ func configureDevTestBootstrapSrv(ctx *pulumi.Context, devTestCloudInitYaml stri
 		Tags:     pulumi.StringArray{pulumi.String("network-services")},
 		SshKeys:  pulumi.ToStringArray(sshFingerprints),
 		UserData: pulumi.String(devTestCloudInitYaml),
-	}, pulumi.IgnoreChanges([]string{"sshKeys"}))
+	}, pulumi.IgnoreChanges([]string{"sshKeys", "userData"}))
 	if err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func configureHcAuthIrohUnyt(ctx *pulumi.Context, cloudInitTmpl *template.Templa
 		Image:    pulumi.String("ubuntu-24-04-x64"),
 		Name:     pulumi.String("hc-auth-iroh-unyt"),
 		Region:   pulumi.String(digitalocean.RegionFRA1),
-		Size:     pulumi.String(digitalocean.DropletSlugDropletS2VCPU2GB),
+		Size:     pulumi.String(digitalocean.DropletSlugDropletS4VCPU8GB),
 		Ipv6:     pulumi.Bool(true),
 		Tags:     pulumi.StringArray{pulumi.String("network-services")},
 		SshKeys:  pulumi.ToStringArray(sshFingerprints),

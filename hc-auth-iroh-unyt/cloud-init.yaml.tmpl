@@ -12,14 +12,12 @@ write_files:
   - content: |
       services:
         bootstrap:
-          image: ghcr.io/holochain/kitsune2_bootstrap_srv_iroh_relay:v0.4.0-dev.5+patch-1
+          image: ghcr.io/holochain/kitsune2_bootstrap_srv_iroh_relay:v0.4.0-dev.5+patch-4
           command:
             - kitsune2-bootstrap-srv
             - --production
             - --listen
             - "[::]:5000"
-            - --allowed-origins
-            - http://127.0.0.1:1234
             - --authentication-hook-server
             - http://auth:3000
           environment:
@@ -73,23 +71,33 @@ write_files:
     permissions: "0644"
 
   - content: |
-      hc-auth-iroh-unyt.holochain.org:443
+      hc-auth-iroh-unyt.holochain.org:443 {
 
-      bind 0.0.0.0
-      encode zstd gzip
-      @bootstrap {
-        path /bootstrap /bootstrap/*
-        path /relay /relay/*
-        path /ping
-        path /authenticate
+        log
+
+        bind 0.0.0.0
+
+        @bootstrap {
+          path /bootstrap /bootstrap/*
+          path /relay /relay/*
+          path /ping
+          path /authenticate
+          path /generate_204
+        }
+
+        handle @bootstrap {
+          reverse_proxy http://bootstrap:5000
+        }
+
+        handle {
+          reverse_proxy http://auth:3000
+        }
       }
 
-      handle @bootstrap {
-        reverse_proxy http://bootstrap:5000
-      }
-
-      handle {
-        reverse_proxy http://auth:3000
+      http://hc-auth-iroh-unyt.holochain.org {
+        handle /generate_204 {
+          reverse_proxy http://bootstrap:5000
+        }
       }
     path: /opt/bootstrap_srv/Caddyfile
     permissions: "0644"

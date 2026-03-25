@@ -1,8 +1,5 @@
 #cloud-config
 
-packages:
-  - podman
-
 snap:
   commands:
     0: [install, core]
@@ -13,7 +10,7 @@ write_files:
   - content: |
       [Container]
       Image=ghcr.io/holochain/kitsune2_bootstrap_srv_iroh_relay:v0.4.0-dev.6
-      Exec=kitsune2-bootstrap-srv --production --listen [::]:443 --tls-cert /etc/letsencrypt/live/dev-test-iroh.holochain.org/fullchain.pem --tls-key /etc/letsencrypt/live/dev-test-iroh.holochain.org/privkey.pem
+      Exec=kitsune2-bootstrap-srv --production --listen [::]:443 --tls-cert /etc/letsencrypt/live/dev-test-bootstrap2-iroh.holochain.org/fullchain.pem --tls-key /etc/letsencrypt/live/dev-test-bootstrap2-iroh.holochain.org/privkey.pem
       Environment=RUST_LOG=info
       Network=host
       Volume=/etc/letsencrypt:/etc/letsencrypt:ro
@@ -30,12 +27,19 @@ write_files:
       #!/bin/bash
       set -euo pipefail
 
+      # Restart journald so its storage directory matches the machine ID
+      # that cloud-init may have reinitialized.
+      systemctl restart systemd-journald
+
+      apt-get update -y
+      apt-get install -y podman
+
       max_attempts=10
       delay=30
 
       for attempt in $(seq 1 $max_attempts); do
         echo "Certbot attempt $attempt of $max_attempts..."
-        if certbot certonly --standalone -d dev-test-iroh.holochain.org --non-interactive --agree-tos -m contact@holochain.org; then
+        if certbot certonly --standalone -d dev-test-bootstrap2-iroh.holochain.org --non-interactive --agree-tos -m contact@holochain.org; then
           echo "Certificate obtained successfully."
           systemctl daemon-reload
           systemctl start bootstrap

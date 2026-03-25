@@ -212,7 +212,7 @@ certificate (retrying until DNS propagates) and starts the `bootstrap` systemd s
 
 No manual setup is required beyond the Pulumi configuration. The deployment creates:
 - A DigitalOcean droplet
-- Cloudflare A and AAAA records for `dev-test-iroh.holochain.org`
+- Cloudflare A and AAAA records for `dev-test-bootstrap2-iroh.holochain.org`
 
 Cloud-init handles certbot and service startup automatically.
 
@@ -221,7 +221,7 @@ Cloud-init handles certbot and service startup automatically.
 SSH into the server and use systemd to manage the bootstrap service:
 
 ```sh
-ssh root@dev-test-iroh.holochain.org
+ssh root@dev-test-bootstrap2-iroh.holochain.org
 
 # Check service status
 systemctl status bootstrap
@@ -235,11 +235,11 @@ systemctl restart bootstrap
 
 ### Updating the container
 
-Edit `dev-test-iroh/cloud-init.yaml` locally and open a PR. Once merged, the cloud-init change will take effect on the
+Edit `dev-test-bootstrap2-iroh/cloud-init.yaml` locally and open a PR. Once merged, the cloud-init change will take effect on the
 next droplet recreation. To update a running instance, SSH in and update the Quadlet container file:
 
 ```sh
-scp dev-test-iroh/cloud-init.yaml root@dev-test-iroh.holochain.org:/tmp/cloud-init.yaml
+scp dev-test-bootstrap2-iroh/cloud-init.yaml root@dev-test-bootstrap2-iroh.holochain.org:/tmp/cloud-init.yaml
 ```
 
 Then on the server, extract the updated container definition from the cloud-init and reload:

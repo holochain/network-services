@@ -6,15 +6,16 @@ import (
 	"os"
 	"text/template"
 
+	"github.com/pulumi/pulumi-cloudflare/sdk/v5/go/cloudflare"
 	"github.com/pulumi/pulumi-digitalocean/sdk/v4/go/digitalocean"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	pulumiConfig "github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
 func main() {
-	devTestCloudInitYaml, err := os.ReadFile("dev-test/cloud-init.yaml")
+	devTestIrohCloudInitYaml, err := os.ReadFile("dev-test-iroh/cloud-init.yaml")
 	if err != nil {
-		log.Fatalf("failed to load cloud-init.yaml: %s", err)
+		log.Fatalf("failed to load dev-test-iroh/cloud-init.yaml: %s", err)
 	}
 
 	hcAuthIrohUnytCloudInitBytes, err := os.ReadFile("hc-auth-iroh-unyt/cloud-init.yaml.tmpl")
@@ -27,7 +28,11 @@ func main() {
 	}
 
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		if err := configureDevTestBootstrapSrv(ctx, string(devTestCloudInitYaml)); err != nil {
+		if err := configureDevTestBootstrapSrv(ctx); err != nil {
+			return err
+		}
+
+		if err := configureDevTestIroh(ctx, string(devTestIrohCloudInitYaml)); err != nil {
 			return err
 		}
 
@@ -39,7 +44,12 @@ func main() {
 	})
 }
 
-func configureDevTestBootstrapSrv(ctx *pulumi.Context, devTestCloudInitYaml string) error {
+func configureDevTestBootstrapSrv(ctx *pulumi.Context) error {
+	devTestCloudInitYaml, err := os.ReadFile("dev-test/cloud-init.yaml")
+	if err != nil {
+		return err
+	}
+
 	getSshKeysResult, err := digitalocean.GetSshKeys(ctx, &digitalocean.GetSshKeysArgs{}, nil)
 	if err != nil {
 		return err
@@ -58,8 +68,63 @@ func configureDevTestBootstrapSrv(ctx *pulumi.Context, devTestCloudInitYaml stri
 		Ipv6:     pulumi.Bool(true),
 		Tags:     pulumi.StringArray{pulumi.String("network-services")},
 		SshKeys:  pulumi.ToStringArray(sshFingerprints),
-		UserData: pulumi.String(devTestCloudInitYaml),
+		UserData: pulumi.String(string(devTestCloudInitYaml)),
 	}, pulumi.IgnoreChanges([]string{"sshKeys", "userData"}))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func configureDevTestIroh(ctx *pulumi.Context, devTestIrohCloudInitYaml string) error {
+	cfg := pulumiConfig.New(ctx, "dns")
+	zoneId := cfg.Require("cloudflare-zone-id")
+
+	getSshKeysResult, err := digitalocean.GetSshKeys(ctx, &digitalocean.GetSshKeysArgs{}, nil)
+	if err != nil {
+		return err
+	}
+
+	var sshFingerprints []string
+	for _, key := range getSshKeysResult.SshKeys {
+		sshFingerprints = append(sshFingerprints, key.Fingerprint)
+	}
+
+	droplet, err := digitalocean.NewDroplet(ctx, "dev-test-iroh", &digitalocean.DropletArgs{
+		Image:    pulumi.String("ubuntu-24-04-x64"),
+		Name:     pulumi.String("dev-test-iroh"),
+		Region:   pulumi.String(digitalocean.RegionFRA1),
+		Size:     pulumi.String(digitalocean.DropletSlugDropletS2VCPU2GB),
+		Ipv6:     pulumi.Bool(true),
+		Tags:     pulumi.StringArray{pulumi.String("network-services")},
+		SshKeys:  pulumi.ToStringArray(sshFingerprints),
+		UserData: pulumi.String(devTestIrohCloudInitYaml),
+	}, pulumi.IgnoreChanges([]string{"sshKeys"}))
+	if err != nil {
+		return err
+	}
+
+	_, err = cloudflare.NewRecord(ctx, "dev-test-iroh-A", &cloudflare.RecordArgs{
+		ZoneId:  pulumi.String(zoneId),
+		Name:    pulumi.String("dev-test-iroh"),
+		Type:    pulumi.String("A"),
+		Content: droplet.Ipv4Address,
+		Ttl:     pulumi.Int(300),
+		Proxied: pulumi.Bool(false),
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = cloudflare.NewRecord(ctx, "dev-test-iroh-AAAA", &cloudflare.RecordArgs{
+		ZoneId:  pulumi.String(zoneId),
+		Name:    pulumi.String("dev-test-iroh"),
+		Type:    pulumi.String("AAAA"),
+		Content: droplet.Ipv6Address,
+		Ttl:     pulumi.Int(300),
+		Proxied: pulumi.Bool(false),
+	})
 	if err != nil {
 		return err
 	}

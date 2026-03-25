@@ -1,0 +1,54 @@
+#cloud-config
+
+packages:
+  - podman
+
+snap:
+  commands:
+    0: [install, core]
+    1: [refresh, core]
+    2: [install, --classic, certbot]
+
+write_files:
+  - content: |
+      [Container]
+      Image=ghcr.io/holochain/kitsune2_bootstrap_srv_iroh_relay:v0.4.0-dev.6
+      Exec=kitsune2-bootstrap-srv --production --listen [::]:443 --tls-cert /etc/letsencrypt/live/dev-test-iroh.holochain.org/fullchain.pem --tls-key /etc/letsencrypt/live/dev-test-iroh.holochain.org/privkey.pem
+      Environment=RUST_LOG=info
+      Network=host
+      Volume=/etc/letsencrypt:/etc/letsencrypt:ro
+
+      [Service]
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target default.target
+    path: /etc/containers/systemd/bootstrap.container
+    permissions: "0644"
+
+  - content: |
+      #!/bin/bash
+      set -euo pipefail
+
+      max_attempts=10
+      delay=30
+
+      for attempt in $(seq 1 $max_attempts); do
+        echo "Certbot attempt $attempt of $max_attempts..."
+        if certbot certonly --standalone -d dev-test-iroh.holochain.org --non-interactive --agree-tos -m contact@holochain.org; then
+          echo "Certificate obtained successfully."
+          systemctl daemon-reload
+          systemctl start bootstrap
+          exit 0
+        fi
+        echo "Certbot failed. Retrying in ${delay}s..."
+        sleep $delay
+      done
+
+      echo "Failed to obtain certificate after $max_attempts attempts."
+      exit 1
+    path: /opt/bootstrap_srv/provision-cert.sh
+    permissions: "0755"
+
+runcmd:
+  - /opt/bootstrap_srv/provision-cert.sh

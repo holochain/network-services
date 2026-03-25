@@ -181,6 +181,75 @@ podman compose up -d
 
 Note that this will restart the service, which will close any open connections!
 
+## Cloudflare DNS
+
+DNS records for newer deployments are managed by Pulumi using the Cloudflare provider. This requires a Cloudflare API
+token and the zone ID for the `holochain.org` DNS zone.
+
+Set the zone ID:
+
+```shell
+pulumi config set dns:cloudflare-zone-id <holochain.org-zone-id>
+```
+
+Set the API token as a secret:
+
+```shell
+pulumi config set --secret cloudflare:apiToken <cloudflare-api-token>
+```
+
+The API token needs `Zone:DNS:Edit` permission for the `holochain.org` zone.
+
+## Iroh bootstrap server (dev-test)
+
+A standalone Iroh relay bootstrap server without authentication, intended for development testing. DNS is provisioned
+automatically via Cloudflare, and TLS certificates are obtained via certbot on first boot.
+
+The service is deployed as a Podman Quadlet container managed by systemd. On first boot, cloud-init provisions the TLS
+certificate (retrying until DNS propagates) and starts the `bootstrap` systemd service.
+
+### First deploy
+
+No manual setup is required beyond the Pulumi configuration. The deployment creates:
+- A DigitalOcean droplet
+- Cloudflare A and AAAA records for `dev-test-iroh.holochain.org`
+
+Cloud-init handles certbot and service startup automatically.
+
+### Managing the service
+
+SSH into the server and use systemd to manage the bootstrap service:
+
+```sh
+ssh root@dev-test-iroh.holochain.org
+
+# Check service status
+systemctl status bootstrap
+
+# View logs
+journalctl -u bootstrap
+
+# Restart
+systemctl restart bootstrap
+```
+
+### Updating the container
+
+Edit `dev-test-iroh/cloud-init.yaml` locally and open a PR. Once merged, the cloud-init change will take effect on the
+next droplet recreation. To update a running instance, SSH in and update the Quadlet container file:
+
+```sh
+scp dev-test-iroh/cloud-init.yaml root@dev-test-iroh.holochain.org:/tmp/cloud-init.yaml
+```
+
+Then on the server, extract the updated container definition from the cloud-init and reload:
+
+```sh
+# Edit /etc/containers/systemd/bootstrap.container with the new image/config
+systemctl daemon-reload
+systemctl restart bootstrap
+```
+
 ## Iroh-flavored bootstrap service with authentication for Unyt
 
 Configured an OAuth application as directed by the [hc-auth-iroh-unyt README](https://github.com/holochain/hc-auth-server).

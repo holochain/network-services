@@ -9,3 +9,6 @@ config:
     secure: AAABANh3F2nDgAfmPhJ5WfY6zWkRR42P8SvqvKk9K22urvqYiXJSgCjnDau1oUqzV42nTn3CGHiDlwza9YQ4XBEpPKJgxA81
   hc-auth-iroh-unyt:session-secret:
     secure: AAABADk48DM2ZdxAXP0bqKocsoRrVSiS9aXgDULVL5jsc+TT8up+zivzSyNb0XriQvnYIz+o1VfyyYwVh8YQFqxTDdn4hNJSyh7rW2sYovD6rN3y+GuWhnVBdRNNflhNcGERk5k1nvkM8jDA7yvfkPzzUZaWgL1I
+  cloudflare:apiToken:
+    secure: AAABAAZzoth38tXpuxrHgKym1nBInl/O69Hr/R8TUdpoiQndNx9CS8KViwrNUHnoQCHb5C7rDOFna3JSIKwOjPkKup0Gi70vsalBI0xG/AY8Q0Lmcw==
+  dns:cloudflare-zone-id: 10a5dbacf3bed1ccc671f04e90f4423f

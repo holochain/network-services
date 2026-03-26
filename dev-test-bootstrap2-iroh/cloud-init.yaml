@@ -34,19 +34,20 @@ write_files:
       apt-get update -y
       apt-get install -y podman
 
-      max_attempts=10
-      delay=30
+      max_attempts=30
+      delay=20
 
       for attempt in $(seq 1 $max_attempts); do
         echo "Certbot attempt $attempt of $max_attempts..."
         if certbot certonly --standalone -d dev-test-bootstrap2-iroh.holochain.org --non-interactive --agree-tos -m contact@holochain.org; then
           echo "Certificate obtained successfully."
           systemctl daemon-reload
-          systemctl start bootstrap
+          systemctl enable --now bootstrap
           exit 0
         fi
-        echo "Certbot failed. Retrying in ${delay}s..."
-        sleep $delay
+        sleep_for=$((delay * attempt))
+        echo "Certbot failed. Retrying in ${sleep_for}s..."
+        sleep "$sleep_for"
       done
 
       echo "Failed to obtain certificate after $max_attempts attempts."

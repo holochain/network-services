@@ -1,11 +1,5 @@
 #cloud-config
 
-snap:
-  commands:
-    0: [install, core]
-    1: [refresh, core]
-    2: [install, --classic, certbot]
-
 write_files:
   - content: |
       [Container]
@@ -32,7 +26,7 @@ write_files:
       systemctl restart systemd-journald
 
       apt-get update -y
-      apt-get install -y podman
+      apt-get install -y podman certbot
 
       max_attempts=30
       delay=20
@@ -42,7 +36,7 @@ write_files:
         if certbot certonly --standalone -d dev-test-bootstrap2-iroh.holochain.org --non-interactive --agree-tos -m contact@holochain.org; then
           echo "Certificate obtained successfully."
           systemctl daemon-reload
-          systemctl enable --now bootstrap
+          systemctl start bootstrap
           exit 0
         fi
         sleep_for=$((delay * attempt))

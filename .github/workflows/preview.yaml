@@ -29,6 +29,14 @@ jobs:
             cat stderr.log | grep "in.*line.*column" -B1 -A1 --no-group-separator | sed -z 's/\([^\n]*\)\n\s*in "\([^"]*\)", line \([[:digit:]]\+\), column \([[:digit:]]\+\):\s*/::error file=dev-test-bootstrap2-iroh\/cloud-init.yaml,title=\1 in \2,line=\3,col=\4::/g'
             exit 1
           fi
+      - name: Lint iroh-relay-unyt cloud-init file
+        run: |
+          if ! cloud-init schema -c iroh-relay-unyt/cloud-init.yaml 2> >(tee stderr.log) >> $GITHUB_STEP_SUMMARY
+          then
+            # Print errors as such in GitHub logs.
+            cat stderr.log | grep "in.*line.*column" -B1 -A1 --no-group-separator | sed -z 's/\([^\n]*\)\n\s*in "\([^"]*\)", line \([[:digit:]]\+\), column \([[:digit:]]\+\):\s*/::error file=iroh-relay-unyt\/cloud-init.yaml,title=\1 in \2,line=\3,col=\4::/g'
+            exit 1
+          fi
       - name: Lint hc-auth-iroh-unyt cloud-init file
         run: |
           if ! cloud-init schema -c hc-auth-iroh-unyt/cloud-init.yaml.tmpl 2> >(tee stderr.log) >> $GITHUB_STEP_SUMMARY

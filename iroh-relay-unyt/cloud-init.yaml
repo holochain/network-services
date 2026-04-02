@@ -1,0 +1,70 @@
+#cloud-config
+
+write_files:
+  - content: |
+      enable_relay = true
+      http_bind_addr = "[::]:80"
+      enable_quic_addr_discovery = true
+      enable_metrics = true
+      metrics_bind_addr = "127.0.0.1:9090"
+
+      [tls]
+      https_bind_addr = "[::]:443"
+      quic_bind_addr = "[::]:7842"
+      cert_mode = "LetsEncrypt"
+      hostname = "iroh-relay-unyt.holochain.org"
+      contact = "contact@holochain.org"
+      prod_tls = true
+      cert_dir = "/var/lib/iroh-relay/certs"
+    path: /etc/iroh-relay/config.toml
+    permissions: "0644"
+
+  - content: |
+      [Unit]
+      Description=Iroh Relay Server
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=simple
+      ExecStart=/usr/local/bin/iroh-relay --config-path /etc/iroh-relay/config.toml
+      Restart=always
+      RestartSec=5
+      Environment=RUST_LOG=info
+      StateDirectory=iroh-relay
+
+      [Install]
+      WantedBy=multi-user.target
+    path: /etc/systemd/system/iroh-relay.service
+    permissions: "0644"
+
+  - content: |
+      #!/bin/bash
+      set -euo pipefail
+
+      # Restart journald so its storage directory matches the machine ID
+      # that cloud-init may have reinitialized.
+      systemctl restart systemd-journald
+
+      apt-get update -y
+      apt-get install -y curl tar
+
+      # Download and install iroh-relay v0.97.0
+      curl -fsSL https://github.com/n0-computer/iroh/releases/download/v0.97.0/iroh-relay-v0.97.0-x86_64-unknown-linux-musl.tar.gz \
+        -o /tmp/iroh-relay.tar.gz
+      echo "4d498f5f959b143c2017a2646dc67e6ac4ef5c11a1170ce6979ad978b3879cc5  /tmp/iroh-relay.tar.gz" | sha256sum -c -
+      tar -xzf /tmp/iroh-relay.tar.gz -C /tmp
+      install -m 0755 /tmp/iroh-relay /usr/local/bin/iroh-relay
+      rm -f /tmp/iroh-relay.tar.gz /tmp/iroh-relay
+
+      # Create state directories
+      mkdir -p /etc/iroh-relay /var/lib/iroh-relay/certs
+
+      # Start the service
+      systemctl daemon-reload
+      systemctl enable --now iroh-relay
+    path: /opt/iroh-relay/provision.sh
+    permissions: "0755"
+
+runcmd:
+  - /opt/iroh-relay/provision.sh

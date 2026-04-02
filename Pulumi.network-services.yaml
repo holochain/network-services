@@ -12,3 +12,11 @@ config:
   cloudflare:apiToken:
     secure: AAABAFPh7LffxJ9S2r0u9GTA2M5dKok33wA3EsEtRrHD5WALAIDju1ANuvtjsaoxtZ7UpojMifDF7Ndk49zxFXhZozwvzn+/kQJWRhdsNqWmSsr9NA==
   dns:cloudflare-zone-id: 10a5dbacf3bed1ccc671f04e90f4423f
+  dev-test-bootstrap2-iroh-auth:github-client-id:
+    secure: AAABAN1H1r/yf7obDKxdwSxb2WwUuUToyM02adzwa8t1rOdkUrN4OS6Ap4px668m3mmyFw==
+  dev-test-bootstrap2-iroh-auth:github-client-secret:
+    secure: AAABAIC/azyH4dPhe+MTkAaSxQCmD55RvIF+J9ZC8vOPPBi7Y2z86EUaY+JZegi447xP87oF2oT7gKBESJrOiHI/TH6EmLfM
+  dev-test-bootstrap2-iroh-auth:session-secret:
+    secure: AAABALb5ugMJ4AjqbyJFerc+oi2vcH/+VlIfNArUtD1DTO/L246kkts26tMgPgQ3y1EybO5fFnYnuWNkACSXj+kBT4wOyIJ7jvIeIju95O2K/QZpmlVKa5LyoaMQ3ny0bXM1hLFubv9WTOsTmcAFjdmJGOliZDqY
+  dev-test-bootstrap2-iroh-auth:api-tokens:
+    secure: AAABANKXvNC6A1ctMYWDnsepNDMHtaUyqzrJ2TedmgShU4GwcblQ4ZsSLNiGx8CJEAFoxYdX332w8pFmd+Aj0WUWdp4=

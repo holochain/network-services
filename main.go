@@ -18,6 +18,11 @@ func main() {
 		log.Fatalf("failed to load iroh-relay-unyt/cloud-init.yaml: %s", err)
 	}
 
+	irohRelayHcCloudInitYaml, err := os.ReadFile("iroh-relay-hc/cloud-init.yaml")
+	if err != nil {
+		log.Fatalf("failed to load iroh-relay-hc/cloud-init.yaml: %s", err)
+	}
+
 	devTestBootstrap2IrohCloudInitYaml, err := os.ReadFile("dev-test-bootstrap2-iroh/cloud-init.yaml")
 	if err != nil {
 		log.Fatalf("failed to load dev-test-bootstrap2-iroh/cloud-init.yaml: %s", err)
@@ -46,6 +51,10 @@ func main() {
 		}
 
 		if err := configureIrohRelayUnyt(ctx, string(irohRelayUnytCloudInitYaml)); err != nil {
+			return err
+		}
+
+		if err := configureIrohRelayHc(ctx, string(irohRelayHcCloudInitYaml)); err != nil {
 			return err
 		}
 
@@ -229,6 +238,61 @@ func configureIrohRelayUnyt(ctx *pulumi.Context, cloudInitYaml string) error {
 	_, err = cloudflare.NewRecord(ctx, "iroh-relay-unyt-AAAA", &cloudflare.RecordArgs{
 		ZoneId:  pulumi.String(zoneId),
 		Name:    pulumi.String("iroh-relay-unyt"),
+		Type:    pulumi.String("AAAA"),
+		Content: droplet.Ipv6Address,
+		Ttl:     pulumi.Int(300),
+		Proxied: pulumi.Bool(false),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func configureIrohRelayHc(ctx *pulumi.Context, cloudInitYaml string) error {
+	cfg := pulumiConfig.New(ctx, "dns")
+	zoneId := cfg.Require("cloudflare-zone-id")
+
+	getSshKeysResult, err := digitalocean.GetSshKeys(ctx, &digitalocean.GetSshKeysArgs{}, nil)
+	if err != nil {
+		return err
+	}
+
+	var sshFingerprints []string
+	for _, key := range getSshKeysResult.SshKeys {
+		sshFingerprints = append(sshFingerprints, key.Fingerprint)
+	}
+
+	droplet, err := digitalocean.NewDroplet(ctx, "iroh-relay-hc", &digitalocean.DropletArgs{
+		Image:    pulumi.String("ubuntu-24-04-x64"),
+		Name:     pulumi.String("iroh-relay-hc"),
+		Region:   pulumi.String(digitalocean.RegionNYC1),
+		Size:     pulumi.String(digitalocean.DropletSlugDropletS2VCPU2GB),
+		Ipv6:     pulumi.Bool(true),
+		Tags:     pulumi.StringArray{pulumi.String("network-services")},
+		SshKeys:  pulumi.ToStringArray(sshFingerprints),
+		UserData: pulumi.String(cloudInitYaml),
+	}, pulumi.IgnoreChanges([]string{"sshKeys"}))
+	if err != nil {
+		return err
+	}
+
+	_, err = cloudflare.NewRecord(ctx, "iroh-relay-hc-A", &cloudflare.RecordArgs{
+		ZoneId:  pulumi.String(zoneId),
+		Name:    pulumi.String("iroh-relay-hc"),
+		Type:    pulumi.String("A"),
+		Content: droplet.Ipv4Address,
+		Ttl:     pulumi.Int(300),
+		Proxied: pulumi.Bool(false),
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = cloudflare.NewRecord(ctx, "iroh-relay-hc-AAAA", &cloudflare.RecordArgs{
+		ZoneId:  pulumi.String(zoneId),
+		Name:    pulumi.String("iroh-relay-hc"),
 		Type:    pulumi.String("AAAA"),
 		Content: droplet.Ipv6Address,
 		Ttl:     pulumi.Int(300),

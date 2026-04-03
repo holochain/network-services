@@ -12,7 +12,7 @@ write_files:
       https_bind_addr = "[::]:443"
       quic_bind_addr = "[::]:7842"
       cert_mode = "LetsEncrypt"
-      hostname = "iroh-relay-unyt.holochain.org"
+      hostname = "iroh-relay-hc.holochain.org"
       contact = "contact@holochain.org"
       prod_tls = true
       cert_dir = "/var/lib/iroh-relay/certs"

@@ -210,14 +210,15 @@ func configureIrohRelayUnyt(ctx *pulumi.Context, cloudInitYaml string) error {
 	}
 
 	droplet, err := digitalocean.NewDroplet(ctx, "iroh-relay-unyt", &digitalocean.DropletArgs{
-		Image:    pulumi.String("ubuntu-24-04-x64"),
-		Name:     pulumi.String("iroh-relay-unyt"),
-		Region:   pulumi.String(digitalocean.RegionNYC1),
-		Size:     pulumi.String(digitalocean.DropletSlugDropletS2VCPU2GB),
-		Ipv6:     pulumi.Bool(true),
-		Tags:     pulumi.StringArray{pulumi.String("network-services")},
-		SshKeys:  pulumi.ToStringArray(sshFingerprints),
-		UserData: pulumi.String(cloudInitYaml),
+		Image:      pulumi.String("ubuntu-24-04-x64"),
+		Name:       pulumi.String("iroh-relay-unyt"),
+		Region:     pulumi.String(digitalocean.RegionNYC1),
+		Size:       pulumi.String(digitalocean.DropletSlugDropletS2VCPU2GB),
+		Ipv6:       pulumi.Bool(true),
+		Monitoring: pulumi.Bool(true),
+		Tags:       pulumi.StringArray{pulumi.String("network-services")},
+		SshKeys:    pulumi.ToStringArray(sshFingerprints),
+		UserData:   pulumi.String(cloudInitYaml),
 	}, pulumi.IgnoreChanges([]string{"sshKeys"}))
 	if err != nil {
 		return err
@@ -265,14 +266,15 @@ func configureIrohRelayHc(ctx *pulumi.Context, cloudInitYaml string) error {
 	}
 
 	droplet, err := digitalocean.NewDroplet(ctx, "iroh-relay-hc", &digitalocean.DropletArgs{
-		Image:    pulumi.String("ubuntu-24-04-x64"),
-		Name:     pulumi.String("iroh-relay-hc"),
-		Region:   pulumi.String(digitalocean.RegionNYC1),
-		Size:     pulumi.String(digitalocean.DropletSlugDropletS2VCPU2GB),
-		Ipv6:     pulumi.Bool(true),
-		Tags:     pulumi.StringArray{pulumi.String("network-services")},
-		SshKeys:  pulumi.ToStringArray(sshFingerprints),
-		UserData: pulumi.String(cloudInitYaml),
+		Image:      pulumi.String("ubuntu-24-04-x64"),
+		Name:       pulumi.String("iroh-relay-hc"),
+		Region:     pulumi.String(digitalocean.RegionNYC1),
+		Size:       pulumi.String(digitalocean.DropletSlugDropletS2VCPU2GB),
+		Ipv6:       pulumi.Bool(true),
+		Monitoring: pulumi.Bool(true),
+		Tags:       pulumi.StringArray{pulumi.String("network-services")},
+		SshKeys:    pulumi.ToStringArray(sshFingerprints),
+		UserData:   pulumi.String(cloudInitYaml),
 	}, pulumi.IgnoreChanges([]string{"sshKeys"}))
 	if err != nil {
 		return err

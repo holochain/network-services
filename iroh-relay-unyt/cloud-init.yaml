@@ -30,8 +30,9 @@ write_files:
       ExecStart=/usr/local/bin/iroh-relay --config-path /etc/iroh-relay/config.toml
       Restart=always
       RestartSec=5
-      Environment=RUST_LOG=info
+      Environment=RUST_LOG=warn
       StateDirectory=iroh-relay
+      LimitNOFILE=524288
 
       [Install]
       WantedBy=multi-user.target

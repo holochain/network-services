@@ -32,6 +32,7 @@ write_files:
       RestartSec=5
       Environment=RUST_LOG=warn
       StateDirectory=iroh-relay
+      LimitNOFILE=524288
 
       [Install]
       WantedBy=multi-user.target
